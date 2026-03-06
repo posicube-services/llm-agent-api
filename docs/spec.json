@@ -1,0 +1,4903 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "LLM Agent API",
+    "description": "LLM Agent API",
+    "version": "v1.14.0"
+  },
+  "servers": [
+    {
+      "url": "https://{domain}/agent/{agent_alias}/a{idx}",
+      "description": "LLM Agent API Server"
+    }
+  ],
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ],
+  "paths": {
+    "/anthropic/messages": {
+      "post": {
+        "tags": ["anthropic"],
+        "summary": "Anthropic Messages API",
+        "description": "POST /messages - 메시지 생성 (stream 지원).\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nurl = BASE_URL + '/anthropic/messages'\npayload = {\n    # TODO: PostMessagesRequestBody\n}\n\nres = httpx.post(url, json=payload, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const url = BASE_URL + '/anthropic/messages';\n  const payload = {\n    // TODO: PostMessagesRequestBody\n  };\n\n  const res = await fetch(url, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify(payload),\n  });\n\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "post_messages_anthropic_messages_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostMessagesRequestBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "anthropic.py",
+        "x-function-name": "post_messages",
+        "x-api-status": "success"
+      }
+    },
+    "/anthropic/files": {
+      "get": {
+        "tags": ["anthropic"],
+        "summary": "Anthropic File 목록 조회",
+        "description": "GET /files - File 목록 조회.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nurl = BASE_URL + '/anthropic/files'\nparams = {\n    'after_id': None,\n    'before_id': None,\n    'limit': 10,\n}\n# None 값은 제거하는 편이 안전합니다.\nparams = {k: v for k, v in params.items() if v is not None}\n\nres = httpx.get(url, params=params, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const url = new URL(BASE_URL + '/anthropic/files');\n\n  const params = new URLSearchParams({\n    limit: '10',\n    // after_id: '...',\n    // before_id: '...',\n  });\n  url.search = params.toString();\n\n  const res = await fetch(url, { method: 'GET' });\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "get_files_anthropic_files_get",
+        "parameters": [
+          {
+            "name": "after_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "After Id"
+            }
+          },
+          {
+            "name": "before_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Before Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": 10,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "anthropic.py",
+        "x-function-name": "get_files",
+        "x-api-status": "success"
+      },
+      "post": {
+        "tags": ["anthropic"],
+        "summary": "Anthropic File 업로드",
+        "description": "POST /files - 파일 업로드.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nurl = BASE_URL + '/anthropic/files'\n\nwith open('path/to/file.bin', 'rb') as f:\n    res = httpx.post(url, files={'file': f}, timeout=60)\n\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\nimport FormData from 'form-data';\nimport fs from 'node:fs';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const url = BASE_URL + '/anthropic/files';\n\n  const form = new FormData();\n  form.append('file', fs.createReadStream('path/to/file.bin'));\n\n  const res = await fetch(url, {\n    method: 'POST',\n    body: form,\n    headers: form.getHeaders(),\n  });\n\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "post_file_anthropic_files_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_post_file_anthropic_files_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "anthropic.py",
+        "x-function-name": "post_file",
+        "x-api-status": "success"
+      }
+    },
+    "/anthropic/files/{file_id}": {
+      "get": {
+        "tags": ["anthropic"],
+        "summary": "Anthropic File 메타데이터 조회",
+        "description": "GET /files/{file_id} - File 메타데이터 단건 조회.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nfile_id = 'YOUR_FILE_ID'\nurl = BASE_URL + f'/anthropic/files/{file_id}'\n\nres = httpx.get(url, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const fileId = 'YOUR_FILE_ID';\n  const url = BASE_URL + '/anthropic/files/' + encodeURIComponent(fileId);\n\n  const res = await fetch(url, { method: 'GET' });\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "get_file_anthropic_files__file_id__get",
+        "parameters": [
+          {
+            "name": "file_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "File Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "anthropic.py",
+        "x-function-name": "get_file",
+        "x-api-status": "success"
+      },
+      "delete": {
+        "tags": ["anthropic"],
+        "summary": "Anthropic File 삭제",
+        "description": "DELETE /files/{file_id} - File 삭제.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nfile_id = 'YOUR_FILE_ID'\nurl = BASE_URL + f'/anthropic/files/{file_id}'\n\nres = httpx.delete(url, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const fileId = 'YOUR_FILE_ID';\n  const url = BASE_URL + '/anthropic/files/' + encodeURIComponent(fileId);\n\n  const res = await fetch(url, { method: 'DELETE' });\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "delete_file_anthropic_files__file_id__delete",
+        "parameters": [
+          {
+            "name": "file_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "File Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "anthropic.py",
+        "x-function-name": "delete_file",
+        "x-api-status": "success"
+      }
+    },
+    "/anthropic/files/{file_id}/content": {
+      "get": {
+        "tags": ["anthropic"],
+        "summary": "Anthropic File 내용 다운로드",
+        "description": "GET /files/{file_id}/content - File 바이너리 다운로드.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nfile_id = 'YOUR_FILE_ID'\nurl = BASE_URL + f'/anthropic/files/{file_id}/content'\n\nres = httpx.get(url, timeout=60)\nres.raise_for_status()\n\nwith open('download.bin', 'wb') as f:\n    f.write(res.content)\n\nprint('saved: download.bin')\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\nimport fs from 'node:fs';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const fileId = 'YOUR_FILE_ID';\n  const url = BASE_URL + '/anthropic/files/' + encodeURIComponent(fileId) + '/content';\n\n  const res = await fetch(url, { method: 'GET' });\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n\n  const buf = Buffer.from(await res.arrayBuffer());\n  fs.writeFileSync('download.bin', buf);\n  console.log('saved: download.bin');\n}\n\nmain();\n```",
+        "operationId": "get_file_content_anthropic_files__file_id__content_get",
+        "parameters": [
+          {
+            "name": "file_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "File Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "anthropic.py",
+        "x-function-name": "get_file_content",
+        "x-api-status": "success"
+      }
+    },
+    "/google/models/{model}:generateContent": {
+      "post": {
+        "tags": ["google"],
+        "summary": "Google Generate Content API",
+        "description": "POST /models/{model}:generateContent\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nmodel = 'YOUR_MODEL'\nurl = BASE_URL + f'/google/models/{model}:generateContent'\npayload = {\n    # TODO: GenerateContentRequestBody\n}\n\nres = httpx.post(url, json=payload, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const model = 'YOUR_MODEL';\n  const url = BASE_URL + '/google/models/' + encodeURIComponent(model) + ':generateContent';\n\n  const payload = {\n    // TODO: GenerateContentRequestBody\n  };\n\n  const res = await fetch(url, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify(payload),\n  });\n\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "post_models_generate_content_google_models__model__generateContent_post",
+        "parameters": [
+          {
+            "name": "model",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Model"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateContentRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "google.py",
+        "x-function-name": "post_models_generate_content",
+        "x-api-status": "success"
+      }
+    },
+    "/google/models/{model}:streamGenerateContent": {
+      "post": {
+        "tags": ["google"],
+        "summary": "Google Stream Generate Content API",
+        "description": "POST /models/{model}:streamGenerateContent\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nmodel = 'YOUR_MODEL'\nurl = BASE_URL + f'/google/models/{model}:streamGenerateContent'\npayload = {\n    # TODO: GenerateContentRequestBody\n}\n\nres = httpx.post(url, json=payload, timeout=60)\nres.raise_for_status()\nprint(res.text)  # 서버 구현에 따라 JSON 또는 스트림 형태일 수 있습니다.\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const model = 'YOUR_MODEL';\n  const url = BASE_URL + '/google/models/' + encodeURIComponent(model) + ':streamGenerateContent';\n\n  const payload = {\n    // TODO: GenerateContentRequestBody\n  };\n\n  const res = await fetch(url, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify(payload),\n  });\n\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.text());\n}\n\nmain();\n```",
+        "operationId": "post_models_stream_generate_content_google_models__model__streamGenerateContent_post",
+        "parameters": [
+          {
+            "name": "model",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Model"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateContentRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "google.py",
+        "x-function-name": "post_models_stream_generate_content",
+        "x-api-status": "success"
+      }
+    },
+    "/google/models/{model}:predict": {
+      "post": {
+        "tags": ["google"],
+        "summary": "Google Predict API (Vertex-style)",
+        "description": "POST /models/{model}:predict - Vertex AI predict 호환, 내부적으로 generateContent 사용.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nmodel = 'YOUR_MODEL'\nurl = BASE_URL + f'/google/models/{model}:predict'\npayload = {\n    # TODO: PredictRequestBody\n}\n\nres = httpx.post(url, json=payload, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const model = 'YOUR_MODEL';\n  const url = BASE_URL + '/google/models/' + encodeURIComponent(model) + ':predict';\n\n  const payload = {\n    // TODO: PredictRequestBody\n  };\n\n  const res = await fetch(url, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify(payload),\n  });\n\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "post_models_predict_google_models__model__predict_post",
+        "parameters": [
+          {
+            "name": "model",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Model"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PredictRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "google.py",
+        "x-function-name": "post_models_predict",
+        "x-api-status": "success"
+      }
+    },
+    "/google/fileSearchStores": {
+      "get": {
+        "tags": ["google"],
+        "summary": "Google File Search Store 목록",
+        "description": "GET /fileSearchStores - FileSearchStore 목록을 조회합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nurl = BASE_URL + '/google/fileSearchStores'\n\nres = httpx.get(url, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const url = BASE_URL + '/google/fileSearchStores';\n\n  const res = await fetch(url, { method: 'GET' });\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "get_file_search_stores_google_fileSearchStores_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "x-file-name": "google.py",
+        "x-function-name": "get_file_search_stores",
+        "x-api-status": "success"
+      },
+      "post": {
+        "tags": ["google"],
+        "summary": "Google File Search Store 생성",
+        "description": "POST /fileSearchStores - FileSearchStore를 생성합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nurl = BASE_URL + '/google/fileSearchStores'\npayload = {\n    # TODO: CreateFileSearchStoreRequestBody (비워두면 {})\n}\n\nres = httpx.post(url, json=payload, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const url = BASE_URL + '/google/fileSearchStores';\n\n  const payload = {\n    // TODO: CreateFileSearchStoreRequestBody\n  };\n\n  const res = await fetch(url, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify(payload),\n  });\n\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "post_file_search_stores_google_fileSearchStores_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFileSearchStoreRequestBody",
+                "description": "생성 옵션. 비워두면 config 없이 생성.",
+                "default": {}
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "google.py",
+        "x-function-name": "post_file_search_stores",
+        "x-api-status": "success"
+      }
+    },
+    "/google/fileSearchStores/{file_search_store_id}": {
+      "get": {
+        "tags": ["google"],
+        "summary": "Google File Search Store 단건 조회",
+        "description": "GET /fileSearchStores/{file_search_store_id} - FileSearchStore 단건을 조회합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nfile_search_store_id = 'YOUR_FILE_SEARCH_STORE_ID'\nurl = BASE_URL + f'/google/fileSearchStores/{file_search_store_id}'\n\nres = httpx.get(url, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const id = 'YOUR_FILE_SEARCH_STORE_ID';\n  const url = BASE_URL + '/google/fileSearchStores/' + encodeURIComponent(id);\n\n  const res = await fetch(url, { method: 'GET' });\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "get_file_search_store_google_fileSearchStores__file_search_store_id__get",
+        "parameters": [
+          {
+            "name": "file_search_store_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "File Search Store Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "google.py",
+        "x-function-name": "get_file_search_store",
+        "x-api-status": "success"
+      },
+      "delete": {
+        "tags": ["google"],
+        "summary": "Google File Search Store 삭제",
+        "description": "DELETE /fileSearchStores/{file_search_store_id} - FileSearchStore를 삭제합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nfile_search_store_id = 'YOUR_FILE_SEARCH_STORE_ID'\nurl = BASE_URL + f'/google/fileSearchStores/{file_search_store_id}'\n\nres = httpx.delete(url, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const id = 'YOUR_FILE_SEARCH_STORE_ID';\n  const url = BASE_URL + '/google/fileSearchStores/' + encodeURIComponent(id);\n\n  const res = await fetch(url, { method: 'DELETE' });\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "delete_file_search_store_google_fileSearchStores__file_search_store_id__delete",
+        "parameters": [
+          {
+            "name": "file_search_store_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "File Search Store Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "google.py",
+        "x-function-name": "delete_file_search_store",
+        "x-api-status": "success"
+      }
+    },
+    "/google/fileSearchStores/{file_search_store_id}:importFile": {
+      "post": {
+        "tags": ["google"],
+        "summary": "Google File Search Store에 파일 import",
+        "description": "POST /fileSearchStores/{file_search_store_id}:importFile - File Service의 파일을 FileSearchStore로 가져옴.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nfile_search_store_id = 'YOUR_FILE_SEARCH_STORE_ID'\nurl = BASE_URL + f'/google/fileSearchStores/{file_search_store_id}:importFile'\npayload = {\n    # TODO: ImportFileRequestBody\n}\n\nres = httpx.post(url, json=payload, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const id = 'YOUR_FILE_SEARCH_STORE_ID';\n  const url = BASE_URL + '/google/fileSearchStores/' + encodeURIComponent(id) + ':importFile';\n\n  const payload = {\n    // TODO: ImportFileRequestBody\n  };\n\n  const res = await fetch(url, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify(payload),\n  });\n\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "post_file_search_store_import_file_google_fileSearchStores__file_search_store_id__importFile_post",
+        "parameters": [
+          {
+            "name": "file_search_store_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "File Search Store Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportFileRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "google.py",
+        "x-function-name": "post_file_search_store_import_file",
+        "x-api-status": "success"
+      }
+    },
+    "/google/fileSearchStores/{file_search_store_id}:uploadToFileSearchStore": {
+      "post": {
+        "tags": ["google"],
+        "summary": "Google File Search Store에 파일 업로드",
+        "description": "POST /fileSearchStores/{file_search_store_id}:uploadToFileSearchStore - 파일을 직접 업로드하여 FileSearchStore에 추가.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nfile_search_store_id = 'YOUR_FILE_SEARCH_STORE_ID'\nurl = BASE_URL + f'/google/fileSearchStores/{file_search_store_id}:uploadToFileSearchStore'\n\nwith open('path/to/file.bin', 'rb') as f:\n    res = httpx.post(url, files={'file': f}, timeout=60)\n\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\nimport FormData from 'form-data';\nimport fs from 'node:fs';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const id = 'YOUR_FILE_SEARCH_STORE_ID';\n  const url = BASE_URL + '/google/fileSearchStores/' + encodeURIComponent(id) + ':uploadToFileSearchStore';\n\n  const form = new FormData();\n  form.append('file', fs.createReadStream('path/to/file.bin'));\n\n  const res = await fetch(url, {\n    method: 'POST',\n    body: form,\n    headers: form.getHeaders(),\n  });\n\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "post_file_search_store_upload_google_fileSearchStores__file_search_store_id__uploadToFileSearchStore_post",
+        "parameters": [
+          {
+            "name": "file_search_store_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "File Search Store Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_post_file_search_store_upload_google_fileSearchStores__file_search_store_id__uploadToFileSearchStore_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "google.py",
+        "x-function-name": "post_file_search_store_upload",
+        "x-api-status": "success"
+      }
+    },
+    "/google/fileSearchStores/{file_search_store_id}/documents": {
+      "get": {
+        "tags": ["google"],
+        "summary": "Google File Search Store 문서 목록",
+        "description": "GET /fileSearchStores/{file_search_store_id}/documents - 문서 목록을 조회합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nfile_search_store_id = 'YOUR_FILE_SEARCH_STORE_ID'\nurl = BASE_URL + f'/google/fileSearchStores/{file_search_store_id}/documents'\n\nres = httpx.get(url, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const id = 'YOUR_FILE_SEARCH_STORE_ID';\n  const url = BASE_URL + '/google/fileSearchStores/' + encodeURIComponent(id) + '/documents';\n\n  const res = await fetch(url, { method: 'GET' });\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "get_file_search_store_documents_google_fileSearchStores__file_search_store_id__documents_get",
+        "parameters": [
+          {
+            "name": "file_search_store_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "File Search Store Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "google.py",
+        "x-function-name": "get_file_search_store_documents",
+        "x-api-status": "success"
+      }
+    },
+    "/google/fileSearchStores/{file_search_store_id}/documents/{document_id}": {
+      "get": {
+        "tags": ["google"],
+        "summary": "Google File Search Store 문서 단건 조회",
+        "description": "GET /fileSearchStores/{file_search_store_id}/documents/{document_id} - 문서 단건을 조회합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nfile_search_store_id = 'YOUR_FILE_SEARCH_STORE_ID'\ndocument_id = 'YOUR_DOCUMENT_ID'\nurl = BASE_URL + f'/google/fileSearchStores/{file_search_store_id}/documents/{document_id}'\n\nres = httpx.get(url, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const storeId = 'YOUR_FILE_SEARCH_STORE_ID';\n  const docId = 'YOUR_DOCUMENT_ID';\n  const url = BASE_URL + '/google/fileSearchStores/' + encodeURIComponent(storeId) + '/documents/' + encodeURIComponent(docId);\n\n  const res = await fetch(url, { method: 'GET' });\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "get_file_search_store_document_google_fileSearchStores__file_search_store_id__documents__document_id__get",
+        "parameters": [
+          {
+            "name": "file_search_store_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "File Search Store Id"
+            }
+          },
+          {
+            "name": "document_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Document Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "google.py",
+        "x-function-name": "get_file_search_store_document",
+        "x-api-status": "success"
+      },
+      "delete": {
+        "tags": ["google"],
+        "summary": "Google File Search Store 문서 삭제",
+        "description": "DELETE /fileSearchStores/{file_search_store_id}/documents/{document_id} - 문서를 삭제합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nfile_search_store_id = 'YOUR_FILE_SEARCH_STORE_ID'\ndocument_id = 'YOUR_DOCUMENT_ID'\nurl = BASE_URL + f'/google/fileSearchStores/{file_search_store_id}/documents/{document_id}'\nparams = {'force': False}\n\nres = httpx.delete(url, params=params, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const storeId = 'YOUR_FILE_SEARCH_STORE_ID';\n  const docId = 'YOUR_DOCUMENT_ID';\n\n  const url = new URL(BASE_URL + '/google/fileSearchStores/' + encodeURIComponent(storeId) + '/documents/' + encodeURIComponent(docId));\n  url.search = new URLSearchParams({ force: 'false' }).toString();\n\n  const res = await fetch(url, { method: 'DELETE' });\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "delete_file_search_store_document_google_fileSearchStores__file_search_store_id__documents__document_id__delete",
+        "parameters": [
+          {
+            "name": "file_search_store_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "File Search Store Id"
+            }
+          },
+          {
+            "name": "document_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Document Id"
+            }
+          },
+          {
+            "name": "force",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Force"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "google.py",
+        "x-function-name": "delete_file_search_store_document",
+        "x-api-status": "success"
+      }
+    },
+    "/google/files": {
+      "get": {
+        "tags": ["google"],
+        "summary": "Google File 목록 조회",
+        "description": "GET /files - Google File 목록 조회.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nurl = BASE_URL + '/google/files'\nparams = {\n    'pageSize': 10,\n    'pageToken': None,\n}\nparams = {k: v for k, v in params.items() if v is not None}\n\nres = httpx.get(url, params=params, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const url = new URL(BASE_URL + '/google/files');\n  url.search = new URLSearchParams({ pageSize: '10' }).toString();\n\n  const res = await fetch(url, { method: 'GET' });\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "get_file_google_files_get",
+        "parameters": [
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "title": "Pagesize"
+            }
+          },
+          {
+            "name": "pageToken",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Pagetoken"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "google.py",
+        "x-function-name": "get_file",
+        "x-api-status": "success"
+      },
+      "post": {
+        "tags": ["google"],
+        "summary": "Google File 업로드 API",
+        "description": "POST /files - Google File 업로드 (api.py provider=google).\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nurl = BASE_URL + '/google/files'\n\nwith open('path/to/file.bin', 'rb') as f:\n    res = httpx.post(url, files={'file': f}, timeout=60)\n\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\nimport FormData from 'form-data';\nimport fs from 'node:fs';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const url = BASE_URL + '/google/files';\n\n  const form = new FormData();\n  form.append('file', fs.createReadStream('path/to/file.bin'));\n\n  const res = await fetch(url, {\n    method: 'POST',\n    body: form,\n    headers: form.getHeaders(),\n  });\n\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "post_file_google_files_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_post_file_google_files_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "google.py",
+        "x-function-name": "post_file",
+        "x-api-status": "success"
+      }
+    },
+    "/google/files/{name}": {
+      "get": {
+        "tags": ["google"],
+        "summary": "Google File 단건 조회",
+        "description": "GET /files/{name} - Google File 메타데이터 조회.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nname = 'YOUR_FILE_NAME'\nurl = BASE_URL + f'/google/files/{name}'\n\nres = httpx.get(url, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const name = 'YOUR_FILE_NAME';\n  const url = BASE_URL + '/google/files/' + encodeURIComponent(name);\n\n  const res = await fetch(url, { method: 'GET' });\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "get_file_by_name_google_files__name__get",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["google"],
+        "summary": "Google File 삭제",
+        "description": "DELETE /files/{name} - Google File 삭제.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nname = 'YOUR_FILE_NAME'\nurl = BASE_URL + f'/google/files/{name}'\n\nres = httpx.delete(url, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const name = 'YOUR_FILE_NAME';\n  const url = BASE_URL + '/google/files/' + encodeURIComponent(name);\n\n  const res = await fetch(url, { method: 'DELETE' });\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "delete_file_by_name_google_files__name__delete",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/openai/responses": {
+      "post": {
+        "tags": ["openai"],
+        "summary": "OpenAI Responses 생성",
+        "description": "OpenAI Responses API를 사용하여 응답을 생성합니다. stream=true 시 SSE 스트리밍을 지원합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nurl = BASE_URL + '/openai/responses'\npayload = {\n    # TODO: ResponseCreateRequest\n    # 'stream': False,\n}\n\nres = httpx.post(url, json=payload, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const url = BASE_URL + '/openai/responses';\n\n  const payload = {\n    // TODO: ResponseCreateRequest\n    // stream: false,\n  };\n\n  const res = await fetch(url, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify(payload),\n  });\n\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "create_response_api_openai_responses_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResponseCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "create_response_api",
+        "x-api-status": "success"
+      }
+    },
+    "/openai/images/generations": {
+      "post": {
+        "tags": ["openai"],
+        "summary": "OpenAI 이미지 생성",
+        "description": "OpenAI API를 사용하여 이미지를 생성합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nurl = BASE_URL + '/openai/images/generations'\npayload = {\n    # TODO: ImageGenerateRequest\n}\n\nres = httpx.post(url, json=payload, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const url = BASE_URL + '/openai/images/generations';\n\n  const payload = {\n    // TODO: ImageGenerateRequest\n  };\n\n  const res = await fetch(url, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify(payload),\n  });\n\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "create_image_api_openai_images_generations_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImageGenerateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "create_image_api",
+        "x-api-status": "success"
+      }
+    },
+    "/openai/images/edits": {
+      "post": {
+        "tags": ["openai"],
+        "summary": "OpenAI 이미지 편집",
+        "description": "OpenAI API를 사용하여 이미지를 편집합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nurl = BASE_URL + '/openai/images/edits'\npayload = {\n    # TODO: ImageEditRequest\n}\n\nres = httpx.post(url, json=payload, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const url = BASE_URL + '/openai/images/edits';\n\n  const payload = {\n    // TODO: ImageEditRequest\n  };\n\n  const res = await fetch(url, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify(payload),\n  });\n\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "edit_image_api_openai_images_edits_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImageEditRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "edit_image_api",
+        "x-api-status": "success"
+      }
+    },
+    "/openai/embeddings": {
+      "post": {
+        "tags": ["openai"],
+        "summary": "OpenAI 임베딩 생성",
+        "description": "OpenAI API를 사용하여 임베딩을 생성합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nurl = BASE_URL + '/openai/embeddings'\npayload = {\n    # TODO: EmbeddingRequest\n}\n\nres = httpx.post(url, json=payload, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const url = BASE_URL + '/openai/embeddings';\n\n  const payload = {\n    // TODO: EmbeddingRequest\n  };\n\n  const res = await fetch(url, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify(payload),\n  });\n\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "create_embeddings_api_openai_embeddings_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmbeddingRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "create_embeddings_api",
+        "x-api-status": "success"
+      }
+    },
+    "/openai/files": {
+      "get": {
+        "tags": ["openai"],
+        "summary": "OpenAI 파일 목록 조회",
+        "description": "OpenAI에 업로드된 파일 목록을 조회합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nurl = BASE_URL + '/openai/files'\nparams = {\n    'after': None,\n    'limit': 20,\n    'order': 'desc',\n    'purpose': None,\n}\nparams = {k: v for k, v in params.items() if v is not None}\n\nres = httpx.get(url, params=params, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const url = new URL(BASE_URL + '/openai/files');\n\n  url.search = new URLSearchParams({\n    limit: '20',\n    order: 'desc',\n    // after: '...',\n    // purpose: 'assistants',\n  }).toString();\n\n  const res = await fetch(url, { method: 'GET' });\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "list_files_api_openai_files_get",
+        "parameters": [
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "페이지네이션 커서",
+              "title": "After"
+            },
+            "description": "페이지네이션 커서"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 10000,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "조회 개수 (1-10000)",
+              "title": "Limit"
+            },
+            "description": "조회 개수 (1-10000)"
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": ["asc", "desc"],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "정렬 순서",
+              "title": "Order"
+            },
+            "description": "정렬 순서"
+          },
+          {
+            "name": "purpose",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "파일 용도 필터",
+              "title": "Purpose"
+            },
+            "description": "파일 용도 필터"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "list_files_api",
+        "x-api-status": "success"
+      },
+      "post": {
+        "tags": ["openai"],
+        "summary": "OpenAI 파일 업로드",
+        "description": "OpenAI에 파일을 업로드합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nurl = BASE_URL + '/openai/files'\n\nwith open('path/to/file.bin', 'rb') as f:\n    # 실제 필드명/추가 파라미터(purpose 등)는 서버 구현에 맞춰 조정하세요.\n    res = httpx.post(url, files={'file': f}, timeout=60)\n\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\nimport FormData from 'form-data';\nimport fs from 'node:fs';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const url = BASE_URL + '/openai/files';\n\n  const form = new FormData();\n  // 실제 필드명/추가 파라미터(purpose 등)는 서버 구현에 맞춰 조정하세요.\n  form.append('file', fs.createReadStream('path/to/file.bin'));\n\n  const res = await fetch(url, {\n    method: 'POST',\n    body: form,\n    headers: form.getHeaders(),\n  });\n\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "create_file_api_openai_files_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "create_file_api",
+        "x-api-status": "success"
+      }
+    },
+    "/openai/files/{file_id}": {
+      "get": {
+        "tags": ["openai"],
+        "summary": "OpenAI 파일 정보 조회",
+        "description": "업로드된 파일의 정보를 조회합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nfile_id = 'YOUR_FILE_ID'\nurl = BASE_URL + f'/openai/files/{file_id}'\n\nres = httpx.get(url, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const fileId = 'YOUR_FILE_ID';\n  const url = BASE_URL + '/openai/files/' + encodeURIComponent(fileId);\n\n  const res = await fetch(url, { method: 'GET' });\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "retrieve_file_api_openai_files__file_id__get",
+        "parameters": [
+          {
+            "name": "file_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "File Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "retrieve_file_api",
+        "x-api-status": "success"
+      },
+      "delete": {
+        "tags": ["openai"],
+        "summary": "OpenAI 파일 삭제",
+        "description": "업로드된 파일을 삭제합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nfile_id = 'YOUR_FILE_ID'\nurl = BASE_URL + f'/openai/files/{file_id}'\n\nres = httpx.delete(url, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const fileId = 'YOUR_FILE_ID';\n  const url = BASE_URL + '/openai/files/' + encodeURIComponent(fileId);\n\n  const res = await fetch(url, { method: 'DELETE' });\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "delete_file_api_openai_files__file_id__delete",
+        "parameters": [
+          {
+            "name": "file_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "File Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "delete_file_api",
+        "x-api-status": "success"
+      }
+    },
+    "/openai/files/{file_id}/content": {
+      "get": {
+        "tags": ["openai"],
+        "summary": "OpenAI 파일 내용 조회",
+        "description": "업로드된 파일의 내용을 조회합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nfile_id = 'YOUR_FILE_ID'\nurl = BASE_URL + f'/openai/files/{file_id}/content'\n\nres = httpx.get(url, timeout=60)\nres.raise_for_status()\n\nwith open('download.bin', 'wb') as f:\n    f.write(res.content)\n\nprint('saved: download.bin')\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\nimport fs from 'node:fs';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const fileId = 'YOUR_FILE_ID';\n  const url = BASE_URL + '/openai/files/' + encodeURIComponent(fileId) + '/content';\n\n  const res = await fetch(url, { method: 'GET' });\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n\n  const buf = Buffer.from(await res.arrayBuffer());\n  fs.writeFileSync('download.bin', buf);\n  console.log('saved: download.bin');\n}\n\nmain();\n```",
+        "operationId": "retrieve_file_content_api_openai_files__file_id__content_get",
+        "parameters": [
+          {
+            "name": "file_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "File Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "retrieve_file_content_api",
+        "x-api-status": "success"
+      }
+    },
+    "/openai/uploads": {
+      "post": {
+        "tags": ["openai"],
+        "summary": "OpenAI 업로드 생성",
+        "description": "대용량 파일 업로드를 위한 Upload 객체를 생성합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nurl = BASE_URL + '/openai/uploads'\npayload = {\n    # TODO: UploadCreateRequest\n}\n\nres = httpx.post(url, json=payload, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const url = BASE_URL + '/openai/uploads';\n\n  const payload = {\n    // TODO: UploadCreateRequest\n  };\n\n  const res = await fetch(url, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify(payload),\n  });\n\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "create_upload_api_openai_uploads_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "create_upload_api",
+        "x-api-status": "success"
+      }
+    },
+    "/openai/uploads/{upload_id}/parts": {
+      "post": {
+        "tags": ["openai"],
+        "summary": "OpenAI 업로드 파트 추가",
+        "description": "대용량 파일 업로드에 파트(청크)를 추가합니다. 최대 64MB까지 가능합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nupload_id = 'YOUR_UPLOAD_ID'\nurl = BASE_URL + f'/openai/uploads/{upload_id}/parts'\n\nwith open('part.bin', 'rb') as f:\n    res = httpx.post(\n        url,\n        files={\n            'data': ('part.bin', f, 'application/octet-stream'),\n        },\n        timeout=60,\n    )\n\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\nimport FormData from 'form-data';\nimport fs from 'node:fs';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const uploadId = 'YOUR_UPLOAD_ID';\n  const url = BASE_URL + '/openai/uploads/' + encodeURIComponent(uploadId) + '/parts';\n\n  const form = new FormData();\n  form.append('data', fs.createReadStream('part.bin'));\n\n  const res = await fetch(url, {\n    method: 'POST',\n    body: form,\n    headers: form.getHeaders(),\n  });\n\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "create_upload_part_api_openai_uploads__upload_id__parts_post",
+        "parameters": [
+          {
+            "name": "upload_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Upload Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_create_upload_part_api_openai_uploads__upload_id__parts_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "create_upload_part_api",
+        "x-api-status": "success"
+      }
+    },
+    "/openai/uploads/{upload_id}/complete": {
+      "post": {
+        "tags": ["openai"],
+        "summary": "OpenAI 업로드 완료",
+        "description": "대용량 파일 업로드를 완료하고 파일을 생성합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nupload_id = 'YOUR_UPLOAD_ID'\nurl = BASE_URL + f'/openai/uploads/{upload_id}/complete'\npayload = {\n    # TODO: UploadCompleteRequest\n}\n\nres = httpx.post(url, json=payload, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const uploadId = 'YOUR_UPLOAD_ID';\n  const url = BASE_URL + '/openai/uploads/' + encodeURIComponent(uploadId) + '/complete';\n\n  const payload = {\n    // TODO: UploadCompleteRequest\n  };\n\n  const res = await fetch(url, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify(payload),\n  });\n\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "complete_upload_api_openai_uploads__upload_id__complete_post",
+        "parameters": [
+          {
+            "name": "upload_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Upload Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadCompleteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "complete_upload_api",
+        "x-api-status": "success"
+      }
+    },
+    "/openai/uploads/{upload_id}/cancel": {
+      "post": {
+        "tags": ["openai"],
+        "summary": "OpenAI 업로드 취소",
+        "description": "진행 중인 업로드를 취소합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nupload_id = 'YOUR_UPLOAD_ID'\nurl = BASE_URL + f'/openai/uploads/{upload_id}/cancel'\n\nres = httpx.post(url, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const uploadId = 'YOUR_UPLOAD_ID';\n  const url = BASE_URL + '/openai/uploads/' + encodeURIComponent(uploadId) + '/cancel';\n\n  const res = await fetch(url, { method: 'POST' });\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "cancel_upload_api_openai_uploads__upload_id__cancel_post",
+        "parameters": [
+          {
+            "name": "upload_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Upload Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "cancel_upload_api",
+        "x-api-status": "success"
+      }
+    },
+    "/openai/vector_stores": {
+      "post": {
+        "tags": ["openai"],
+        "summary": "OpenAI 벡터 스토어 생성",
+        "description": "새로운 벡터 스토어를 생성합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nurl = BASE_URL + '/openai/vector_stores'\npayload = {\n    # TODO: VectorStoreCreateRequest\n}\n\nres = httpx.post(url, json=payload, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const url = BASE_URL + '/openai/vector_stores';\n\n  const payload = {\n    // TODO: VectorStoreCreateRequest\n  };\n\n  const res = await fetch(url, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify(payload),\n  });\n\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "create_vector_store_api_openai_vector_stores_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VectorStoreCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "create_vector_store_api",
+        "x-api-status": "success"
+      },
+      "get": {
+        "tags": ["openai"],
+        "summary": "OpenAI 벡터 스토어 목록 조회",
+        "description": "벡터 스토어 목록을 조회합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nurl = BASE_URL + '/openai/vector_stores'\nparams = {\n    'limit': 20,\n    'order': 'desc',\n    'after': None,\n    'before': None,\n}\nparams = {k: v for k, v in params.items() if v is not None}\n\nres = httpx.get(url, params=params, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const url = new URL(BASE_URL + '/openai/vector_stores');\n\n  url.search = new URLSearchParams({\n    limit: '20',\n    order: 'desc',\n    // after: '...',\n    // before: '...',\n  }).toString();\n\n  const res = await fetch(url, { method: 'GET' });\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "list_vector_stores_api_openai_vector_stores_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "조회 개수 (1-100)",
+              "default": 20,
+              "title": "Limit"
+            },
+            "description": "조회 개수 (1-100)"
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": ["asc", "desc"],
+              "type": "string",
+              "description": "정렬 순서",
+              "default": "desc",
+              "title": "Order"
+            },
+            "description": "정렬 순서"
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "페이지네이션 커서 (이후)",
+              "title": "After"
+            },
+            "description": "페이지네이션 커서 (이후)"
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "페이지네이션 커서 (이전)",
+              "title": "Before"
+            },
+            "description": "페이지네이션 커서 (이전)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "list_vector_stores_api",
+        "x-api-status": "success"
+      }
+    },
+    "/openai/vector_stores/{vector_store_id}": {
+      "get": {
+        "tags": ["openai"],
+        "summary": "OpenAI 벡터 스토어 조회",
+        "description": "벡터 스토어의 상세 정보를 조회합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nvector_store_id = 'YOUR_VECTOR_STORE_ID'\nurl = BASE_URL + f'/openai/vector_stores/{vector_store_id}'\n\nres = httpx.get(url, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const id = 'YOUR_VECTOR_STORE_ID';\n  const url = BASE_URL + '/openai/vector_stores/' + encodeURIComponent(id);\n\n  const res = await fetch(url, { method: 'GET' });\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "retrieve_vector_store_api_openai_vector_stores__vector_store_id__get",
+        "parameters": [
+          {
+            "name": "vector_store_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Vector Store Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "retrieve_vector_store_api",
+        "x-api-status": "success"
+      },
+      "post": {
+        "tags": ["openai"],
+        "summary": "OpenAI 벡터 스토어 수정",
+        "description": "벡터 스토어의 이름, 메타데이터, 만료 설정 등을 수정합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nvector_store_id = 'YOUR_VECTOR_STORE_ID'\nurl = BASE_URL + f'/openai/vector_stores/{vector_store_id}'\npayload = {\n    # TODO: VectorStoreUpdateRequest\n}\n\nres = httpx.post(url, json=payload, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const id = 'YOUR_VECTOR_STORE_ID';\n  const url = BASE_URL + '/openai/vector_stores/' + encodeURIComponent(id);\n\n  const payload = {\n    // TODO: VectorStoreUpdateRequest\n  };\n\n  const res = await fetch(url, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify(payload),\n  });\n\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "update_vector_store_api_openai_vector_stores__vector_store_id__post",
+        "parameters": [
+          {
+            "name": "vector_store_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Vector Store Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VectorStoreUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "update_vector_store_api",
+        "x-api-status": "success"
+      },
+      "delete": {
+        "tags": ["openai"],
+        "summary": "OpenAI 벡터 스토어 삭제",
+        "description": "벡터 스토어를 삭제합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nvector_store_id = 'YOUR_VECTOR_STORE_ID'\nurl = BASE_URL + f'/openai/vector_stores/{vector_store_id}'\n\nres = httpx.delete(url, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const id = 'YOUR_VECTOR_STORE_ID';\n  const url = BASE_URL + '/openai/vector_stores/' + encodeURIComponent(id);\n\n  const res = await fetch(url, { method: 'DELETE' });\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "delete_vector_store_api_openai_vector_stores__vector_store_id__delete",
+        "parameters": [
+          {
+            "name": "vector_store_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Vector Store Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "delete_vector_store_api",
+        "x-api-status": "success"
+      }
+    },
+    "/openai/vector_stores/{vector_store_id}/search": {
+      "post": {
+        "tags": ["openai"],
+        "summary": "OpenAI 벡터 스토어 검색",
+        "description": "벡터 스토어에서 쿼리 기반으로 관련 청크를 검색합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nvector_store_id = 'YOUR_VECTOR_STORE_ID'\nurl = BASE_URL + f'/openai/vector_stores/{vector_store_id}/search'\npayload = {\n    # TODO: VectorStoreSearchRequest\n}\n\nres = httpx.post(url, json=payload, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const id = 'YOUR_VECTOR_STORE_ID';\n  const url = BASE_URL + '/openai/vector_stores/' + encodeURIComponent(id) + '/search';\n\n  const payload = {\n    // TODO: VectorStoreSearchRequest\n  };\n\n  const res = await fetch(url, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify(payload),\n  });\n\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "search_vector_store_api_openai_vector_stores__vector_store_id__search_post",
+        "parameters": [
+          {
+            "name": "vector_store_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Vector Store Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VectorStoreSearchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "search_vector_store_api",
+        "x-api-status": "success"
+      }
+    },
+    "/openai/vector_stores/{vector_store_id}/files": {
+      "get": {
+        "tags": ["openai"],
+        "summary": "OpenAI 벡터 스토어 파일 목록 조회",
+        "description": "벡터 스토어에 포함된 파일 목록을 조회합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nvector_store_id = 'YOUR_VECTOR_STORE_ID'\nurl = BASE_URL + f'/openai/vector_stores/{vector_store_id}/files'\nparams = {\n    'limit': 20,\n    'order': 'desc',\n    'after': None,\n    'before': None,\n    'filter': None,\n}\nparams = {k: v for k, v in params.items() if v is not None}\n\nres = httpx.get(url, params=params, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const id = 'YOUR_VECTOR_STORE_ID';\n  const url = new URL(BASE_URL + '/openai/vector_stores/' + encodeURIComponent(id) + '/files');\n\n  url.search = new URLSearchParams({\n    limit: '20',\n    order: 'desc',\n    // after: '...',\n    // before: '...',\n    // filter: 'completed',\n  }).toString();\n\n  const res = await fetch(url, { method: 'GET' });\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "list_vector_store_files_api_openai_vector_stores__vector_store_id__files_get",
+        "parameters": [
+          {
+            "name": "vector_store_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Vector Store Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "조회 개수 (1-100)",
+              "default": 20,
+              "title": "Limit"
+            },
+            "description": "조회 개수 (1-100)"
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": ["asc", "desc"],
+              "type": "string",
+              "description": "정렬 순서",
+              "default": "desc",
+              "title": "Order"
+            },
+            "description": "정렬 순서"
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "페이지네이션 커서 (이후)",
+              "title": "After"
+            },
+            "description": "페이지네이션 커서 (이후)"
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "페이지네이션 커서 (이전)",
+              "title": "Before"
+            },
+            "description": "페이지네이션 커서 (이전)"
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": ["in_progress", "completed", "failed", "cancelled"],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "파일 상태 필터",
+              "title": "Filter"
+            },
+            "description": "파일 상태 필터"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "list_vector_store_files_api",
+        "x-api-status": "success"
+      },
+      "post": {
+        "tags": ["openai"],
+        "summary": "OpenAI 벡터 스토어 파일 추가",
+        "description": "벡터 스토어에 파일을 추가합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nvector_store_id = 'YOUR_VECTOR_STORE_ID'\nurl = BASE_URL + f'/openai/vector_stores/{vector_store_id}/files'\npayload = {\n    # TODO: VectorStoreFileCreateRequest\n}\n\nres = httpx.post(url, json=payload, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const id = 'YOUR_VECTOR_STORE_ID';\n  const url = BASE_URL + '/openai/vector_stores/' + encodeURIComponent(id) + '/files';\n\n  const payload = {\n    // TODO: VectorStoreFileCreateRequest\n  };\n\n  const res = await fetch(url, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify(payload),\n  });\n\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "create_vector_store_file_api_openai_vector_stores__vector_store_id__files_post",
+        "parameters": [
+          {
+            "name": "vector_store_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Vector Store Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VectorStoreFileCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "create_vector_store_file_api",
+        "x-api-status": "success"
+      }
+    },
+    "/openai/vector_stores/{vector_store_id}/files/{file_id}": {
+      "get": {
+        "tags": ["openai"],
+        "summary": "벡터 스토어 파일 조회",
+        "description": "벡터 스토어에 포함된 파일의 상세 정보를 조회합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nvector_store_id = 'YOUR_VECTOR_STORE_ID'\nfile_id = 'YOUR_FILE_ID'\nurl = BASE_URL + f'/openai/vector_stores/{vector_store_id}/files/{file_id}'\n\nres = httpx.get(url, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const storeId = 'YOUR_VECTOR_STORE_ID';\n  const fileId = 'YOUR_FILE_ID';\n  const url = BASE_URL + '/openai/vector_stores/' + encodeURIComponent(storeId) + '/files/' + encodeURIComponent(fileId);\n\n  const res = await fetch(url, { method: 'GET' });\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "retrieve_vector_store_file_api_openai_vector_stores__vector_store_id__files__file_id__get",
+        "parameters": [
+          {
+            "name": "vector_store_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Vector Store Id"
+            }
+          },
+          {
+            "name": "file_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "File Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "retrieve_vector_store_file_api",
+        "x-api-status": "success"
+      },
+      "post": {
+        "tags": ["openai"],
+        "summary": "OpenAI 벡터 스토어 파일 수정",
+        "description": "벡터 스토어 파일의 attributes를 수정합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nvector_store_id = 'YOUR_VECTOR_STORE_ID'\nfile_id = 'YOUR_FILE_ID'\nurl = BASE_URL + f'/openai/vector_stores/{vector_store_id}/files/{file_id}'\npayload = {\n    # TODO: VectorStoreFileUpdateRequest\n}\n\nres = httpx.post(url, json=payload, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const storeId = 'YOUR_VECTOR_STORE_ID';\n  const fileId = 'YOUR_FILE_ID';\n  const url = BASE_URL + '/openai/vector_stores/' + encodeURIComponent(storeId) + '/files/' + encodeURIComponent(fileId);\n\n  const payload = {\n    // TODO: VectorStoreFileUpdateRequest\n  };\n\n  const res = await fetch(url, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify(payload),\n  });\n\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "update_vector_store_file_api_openai_vector_stores__vector_store_id__files__file_id__post",
+        "parameters": [
+          {
+            "name": "vector_store_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Vector Store Id"
+            }
+          },
+          {
+            "name": "file_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "File Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VectorStoreFileUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "update_vector_store_file_api",
+        "x-api-status": "success"
+      },
+      "delete": {
+        "tags": ["openai"],
+        "summary": "OpenAI 벡터 스토어 파일 삭제",
+        "description": "벡터 스토어에서 파일을 제거합니다. 원본 파일은 삭제되지 않습니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nvector_store_id = 'YOUR_VECTOR_STORE_ID'\nfile_id = 'YOUR_FILE_ID'\nurl = BASE_URL + f'/openai/vector_stores/{vector_store_id}/files/{file_id}'\n\nres = httpx.delete(url, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const storeId = 'YOUR_VECTOR_STORE_ID';\n  const fileId = 'YOUR_FILE_ID';\n  const url = BASE_URL + '/openai/vector_stores/' + encodeURIComponent(storeId) + '/files/' + encodeURIComponent(fileId);\n\n  const res = await fetch(url, { method: 'DELETE' });\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "delete_vector_store_file_api_openai_vector_stores__vector_store_id__files__file_id__delete",
+        "parameters": [
+          {
+            "name": "vector_store_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Vector Store Id"
+            }
+          },
+          {
+            "name": "file_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "File Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "delete_vector_store_file_api",
+        "x-api-status": "success"
+      }
+    },
+    "/openai/vector_stores/{vector_store_id}/files/{file_id}/content": {
+      "get": {
+        "tags": ["openai"],
+        "summary": "OpenAI 벡터 스토어 파일 내용 조회",
+        "description": "벡터 스토어에 저장된 파일의 파싱된 텍스트 내용을 조회합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nvector_store_id = 'YOUR_VECTOR_STORE_ID'\nfile_id = 'YOUR_FILE_ID'\nurl = BASE_URL + f'/openai/vector_stores/{vector_store_id}/files/{file_id}/content'\n\nres = httpx.get(url, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const storeId = 'YOUR_VECTOR_STORE_ID';\n  const fileId = 'YOUR_FILE_ID';\n  const url = BASE_URL + '/openai/vector_stores/' + encodeURIComponent(storeId) + '/files/' + encodeURIComponent(fileId) + '/content';\n\n  const res = await fetch(url, { method: 'GET' });\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "retrieve_vector_store_file_content_api_openai_vector_stores__vector_store_id__files__file_id__content_get",
+        "parameters": [
+          {
+            "name": "vector_store_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Vector Store Id"
+            }
+          },
+          {
+            "name": "file_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "File Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "retrieve_vector_store_file_content_api",
+        "x-api-status": "success"
+      }
+    },
+    "/openai/containers": {
+      "post": {
+        "tags": ["openai"],
+        "summary": "OpenAI 컨테이너 생성",
+        "description": "새로운 컨테이너를 생성합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nurl = BASE_URL + '/openai/containers'\npayload = {\n    # TODO: ContainerCreateRequest\n}\n\nres = httpx.post(url, json=payload, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const url = BASE_URL + '/openai/containers';\n\n  const payload = {\n    // TODO: ContainerCreateRequest\n  };\n\n  const res = await fetch(url, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify(payload),\n  });\n\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "create_container_api_openai_containers_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContainerCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "create_container_api",
+        "x-api-status": "success"
+      },
+      "get": {
+        "tags": ["openai"],
+        "summary": "OpenAI 컨테이너 목록 조회",
+        "description": "컨테이너 목록을 조회합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\nurl = BASE_URL + '/openai/containers'\nparams = {\n    'limit': 20,\n    'order': 'desc',\n    'after': None,\n    'name': None,\n}\nparams = {k: v for k, v in params.items() if v is not None}\n\nres = httpx.get(url, params=params, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const url = new URL(BASE_URL + '/openai/containers');\n\n  url.search = new URLSearchParams({\n    limit: '20',\n    order: 'desc',\n    // after: '...',\n    // name: 'my-container',\n  }).toString();\n\n  const res = await fetch(url, { method: 'GET' });\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "list_containers_api_openai_containers_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "조회 개수 (1-100)",
+              "default": 20,
+              "title": "Limit"
+            },
+            "description": "조회 개수 (1-100)"
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": ["asc", "desc"],
+              "type": "string",
+              "description": "정렬 순서",
+              "default": "desc",
+              "title": "Order"
+            },
+            "description": "정렬 순서"
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "페이지네이션 커서",
+              "title": "After"
+            },
+            "description": "페이지네이션 커서"
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "컨테이너 이름 필터",
+              "title": "Name"
+            },
+            "description": "컨테이너 이름 필터"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "list_containers_api",
+        "x-api-status": "success"
+      }
+    },
+    "/openai/containers/{container_id}": {
+      "get": {
+        "tags": ["openai"],
+        "summary": "OpenAI 컨테이너 조회",
+        "description": "컨테이너의 상세 정보를 조회합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\ncontainer_id = 'YOUR_CONTAINER_ID'\nurl = BASE_URL + f'/openai/containers/{container_id}'\n\nres = httpx.get(url, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const containerId = 'YOUR_CONTAINER_ID';\n  const url = BASE_URL + '/openai/containers/' + encodeURIComponent(containerId);\n\n  const res = await fetch(url, { method: 'GET' });\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "retrieve_container_api_openai_containers__container_id__get",
+        "parameters": [
+          {
+            "name": "container_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Container Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "retrieve_container_api",
+        "x-api-status": "success"
+      },
+      "delete": {
+        "tags": ["openai"],
+        "summary": "OpenAI 컨테이너 삭제",
+        "description": "컨테이너를 삭제합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\ncontainer_id = 'YOUR_CONTAINER_ID'\nurl = BASE_URL + f'/openai/containers/{container_id}'\n\nres = httpx.delete(url, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const containerId = 'YOUR_CONTAINER_ID';\n  const url = BASE_URL + '/openai/containers/' + encodeURIComponent(containerId);\n\n  const res = await fetch(url, { method: 'DELETE' });\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "delete_container_api_openai_containers__container_id__delete",
+        "parameters": [
+          {
+            "name": "container_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Container Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "delete_container_api",
+        "x-api-status": "success"
+      }
+    },
+    "/openai/containers/{container_id}/files": {
+      "get": {
+        "tags": ["openai"],
+        "summary": "OpenAI 컨테이너 파일 목록 조회",
+        "description": "컨테이너에 포함된 파일 목록을 조회합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\ncontainer_id = 'YOUR_CONTAINER_ID'\nurl = BASE_URL + f'/openai/containers/{container_id}/files'\nparams = {\n    'limit': 20,\n    'order': 'desc',\n    'after': None,\n}\nparams = {k: v for k, v in params.items() if v is not None}\n\nres = httpx.get(url, params=params, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const containerId = 'YOUR_CONTAINER_ID';\n  const url = new URL(BASE_URL + '/openai/containers/' + encodeURIComponent(containerId) + '/files');\n\n  url.search = new URLSearchParams({\n    limit: '20',\n    order: 'desc',\n    // after: '...',\n  }).toString();\n\n  const res = await fetch(url, { method: 'GET' });\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "list_container_files_api_openai_containers__container_id__files_get",
+        "parameters": [
+          {
+            "name": "container_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Container Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "desc",
+              "title": "Order"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "After"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "list_container_files_api",
+        "x-api-status": "success"
+      },
+      "post": {
+        "tags": ["openai"],
+        "summary": "OpenAI 컨테이너 파일 추가",
+        "description": "컨테이너에 파일을 추가합니다. multipart/form-data 또는 file_id로 전송 가능합니다.\n\n### Python (httpx) - multipart 업로드\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\ncontainer_id = 'YOUR_CONTAINER_ID'\nurl = BASE_URL + f'/openai/containers/{container_id}/files'\n\nwith open('path/to/file.bin', 'rb') as f:\n    res = httpx.post(url, files={'file': f}, timeout=60)\n\nres.raise_for_status()\nprint(res.json())\n```\n\n### Python (httpx) - file_id 전송\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\ncontainer_id = 'YOUR_CONTAINER_ID'\nurl = BASE_URL + f'/openai/containers/{container_id}/files'\npayload = {\n    'file_id': 'YOUR_FILE_ID',\n}\n\nres = httpx.post(url, json=payload, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch) - multipart 업로드\n```js\nimport fetch from 'node-fetch';\nimport FormData from 'form-data';\nimport fs from 'node:fs';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const containerId = 'YOUR_CONTAINER_ID';\n  const url = BASE_URL + '/openai/containers/' + encodeURIComponent(containerId) + '/files';\n\n  const form = new FormData();\n  form.append('file', fs.createReadStream('path/to/file.bin'));\n\n  const res = await fetch(url, {\n    method: 'POST',\n    body: form,\n    headers: form.getHeaders(),\n  });\n\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```\n\n### Node.js (node-fetch) - file_id 전송\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const containerId = 'YOUR_CONTAINER_ID';\n  const url = BASE_URL + '/openai/containers/' + encodeURIComponent(containerId) + '/files';\n\n  const payload = { file_id: 'YOUR_FILE_ID' };\n\n  const res = await fetch(url, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify(payload),\n  });\n\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "create_container_file_api_openai_containers__container_id__files_post",
+        "parameters": [
+          {
+            "name": "container_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Container Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "create_container_file_api",
+        "x-api-status": "success"
+      }
+    },
+    "/openai/containers/{container_id}/files/{file_id}": {
+      "get": {
+        "tags": ["openai"],
+        "summary": "OpenAI 컨테이너 파일 조회",
+        "description": "컨테이너에 포함된 파일의 상세 정보를 조회합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\ncontainer_id = 'YOUR_CONTAINER_ID'\nfile_id = 'YOUR_FILE_ID'\nurl = BASE_URL + f'/openai/containers/{container_id}/files/{file_id}'\n\nres = httpx.get(url, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const containerId = 'YOUR_CONTAINER_ID';\n  const fileId = 'YOUR_FILE_ID';\n  const url = BASE_URL + '/openai/containers/' + encodeURIComponent(containerId) + '/files/' + encodeURIComponent(fileId);\n\n  const res = await fetch(url, { method: 'GET' });\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "retrieve_container_file_api_openai_containers__container_id__files__file_id__get",
+        "parameters": [
+          {
+            "name": "container_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Container Id"
+            }
+          },
+          {
+            "name": "file_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "File Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "retrieve_container_file_api",
+        "x-api-status": "success"
+      },
+      "delete": {
+        "tags": ["openai"],
+        "summary": "OpenAI 컨테이너 파일 삭제",
+        "description": "컨테이너에서 파일을 삭제합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\ncontainer_id = 'YOUR_CONTAINER_ID'\nfile_id = 'YOUR_FILE_ID'\nurl = BASE_URL + f'/openai/containers/{container_id}/files/{file_id}'\n\nres = httpx.delete(url, timeout=60)\nres.raise_for_status()\nprint(res.json())\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const containerId = 'YOUR_CONTAINER_ID';\n  const fileId = 'YOUR_FILE_ID';\n  const url = BASE_URL + '/openai/containers/' + encodeURIComponent(containerId) + '/files/' + encodeURIComponent(fileId);\n\n  const res = await fetch(url, { method: 'DELETE' });\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n  console.log(await res.json());\n}\n\nmain();\n```",
+        "operationId": "delete_container_file_api_openai_containers__container_id__files__file_id__delete",
+        "parameters": [
+          {
+            "name": "container_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Container Id"
+            }
+          },
+          {
+            "name": "file_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "File Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "delete_container_file_api",
+        "x-api-status": "success"
+      }
+    },
+    "/openai/containers/{container_id}/files/{file_id}/content": {
+      "get": {
+        "tags": ["openai"],
+        "summary": "OpenAI 컨테이너 파일 내용 조회",
+        "description": "컨테이너에 저장된 파일의 바이너리 내용을 조회합니다.\n\n### Python (httpx)\n```python\nimport httpx\n\nBASE_URL = 'https://{domain}/agent/a{idx}'\ncontainer_id = 'YOUR_CONTAINER_ID'\nfile_id = 'YOUR_FILE_ID'\nurl = BASE_URL + f'/openai/containers/{container_id}/files/{file_id}/content'\n\nres = httpx.get(url, timeout=60)\nres.raise_for_status()\n\nwith open('download.bin', 'wb') as f:\n    f.write(res.content)\n\nprint('saved: download.bin')\n```\n\n### Node.js (node-fetch)\n```js\nimport fetch from 'node-fetch';\nimport fs from 'node:fs';\n\nasync function main() {\n  const BASE_URL = 'https://{domain}/agent/a{idx}';\n  const containerId = 'YOUR_CONTAINER_ID';\n  const fileId = 'YOUR_FILE_ID';\n  const url = BASE_URL + '/openai/containers/' + encodeURIComponent(containerId) + '/files/' + encodeURIComponent(fileId) + '/content';\n\n  const res = await fetch(url, { method: 'GET' });\n  if (!res.ok) throw new Error(res.status + ' ' + (await res.text()));\n\n  const buf = Buffer.from(await res.arrayBuffer());\n  fs.writeFileSync('download.bin', buf);\n  console.log('saved: download.bin');\n}\n\nmain();\n```",
+        "operationId": "retrieve_container_file_content_api_openai_containers__container_id__files__file_id__content_get",
+        "parameters": [
+          {
+            "name": "container_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Container Id"
+            }
+          },
+          {
+            "name": "file_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "File Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-file-name": "openai.py",
+        "x-function-name": "retrieve_container_file_content_api",
+        "x-api-status": "success"
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key",
+        "description": "모든 API 호출에 필요한 API Key 헤더입니다."
+      }
+    },
+    "schemas": {
+      "AllowlistDomain": {
+        "properties": {
+          "domain": {
+            "type": "string",
+            "title": "Domain"
+          },
+          "secret": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Secret"
+          }
+        },
+        "type": "object",
+        "required": ["domain"],
+        "title": "AllowlistDomain"
+      },
+      "Body_create_upload_part_api_openai_uploads__upload_id__parts_post": {
+        "properties": {
+          "data": {
+            "type": "string",
+            "format": "binary",
+            "title": "Data",
+            "description": "업로드할 파트 데이터"
+          }
+        },
+        "type": "object",
+        "required": ["data"],
+        "title": "Body_create_upload_part_api_openai_uploads__upload_id__parts_post"
+      },
+      "Body_post_file_anthropic_files_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": ["file"],
+        "title": "Body_post_file_anthropic_files_post"
+      },
+      "Body_post_file_google_files_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": ["file"],
+        "title": "Body_post_file_google_files_post"
+      },
+      "Body_post_file_search_store_upload_google_fileSearchStores__file_search_store_id__uploadToFileSearchStore_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": ["file"],
+        "title": "Body_post_file_search_store_upload_google_fileSearchStores__file_search_store_id__uploadToFileSearchStore_post"
+      },
+      "Body_upload_openai_file_files_uploads_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": ["file"],
+        "title": "Body_upload_openai_file_files_uploads_post"
+      },
+      "ChunkingStrategy": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["auto", "static"],
+            "title": "Type",
+            "default": "auto"
+          },
+          "static": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StaticChunkingStrategy"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "ChunkingStrategy"
+      },
+      "ComparisonFilter": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["eq", "ne", "gt", "gte", "lt", "lte", "in", "nin"],
+            "title": "Type"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "type": "object",
+        "required": ["key", "type", "value"],
+        "title": "ComparisonFilter"
+      },
+      "CompoundFilter": {
+        "properties": {
+          "filters": {
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/ComparisonFilter"
+                },
+                {
+                  "$ref": "#/components/schemas/CompoundFilter"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Filters"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["and", "or"],
+            "title": "Type"
+          }
+        },
+        "type": "object",
+        "required": ["filters", "type"],
+        "title": "CompoundFilter"
+      },
+      "ContainerCreateRequest": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "expires_after": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ContainerExpiresAfter"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "file_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File Ids"
+          },
+          "memory_limit": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": ["1g", "4g", "16g", "64g"]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Memory Limit"
+          },
+          "network_policy": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ContainerNetworkPolicyDisabled"
+              },
+              {
+                "$ref": "#/components/schemas/ContainerNetworkPolicyAllowlist"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Network Policy"
+          }
+        },
+        "type": "object",
+        "required": ["name"],
+        "title": "ContainerCreateRequest"
+      },
+      "ContainerExpiresAfter": {
+        "properties": {
+          "anchor": {
+            "type": "string",
+            "const": "last_active_at",
+            "title": "Anchor",
+            "default": "last_active_at"
+          },
+          "minutes": {
+            "type": "integer",
+            "title": "Minutes",
+            "description": "만료까지 시간 (분)"
+          }
+        },
+        "type": "object",
+        "required": ["minutes"],
+        "title": "ContainerExpiresAfter"
+      },
+      "ContainerNetworkPolicyAllowlist": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "allowlist",
+            "title": "Type",
+            "default": "allowlist"
+          },
+          "allowlist": {
+            "items": {
+              "$ref": "#/components/schemas/AllowlistDomain"
+            },
+            "type": "array",
+            "title": "Allowlist"
+          }
+        },
+        "type": "object",
+        "required": ["allowlist"],
+        "title": "ContainerNetworkPolicyAllowlist"
+      },
+      "ContainerNetworkPolicyDisabled": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "disabled",
+            "title": "Type",
+            "default": "disabled"
+          }
+        },
+        "type": "object",
+        "title": "ContainerNetworkPolicyDisabled"
+      },
+      "ContentRequest": {
+        "properties": {
+          "role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role",
+            "description": "발신자. 'user' 또는 'model'. 미설정 시 'user'로 간주."
+          },
+          "parts": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/PartRequest"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parts",
+            "description": "메시지를 구성하는 파트 목록 (텍스트, 이미지 등)."
+          }
+        },
+        "type": "object",
+        "title": "ContentRequest",
+        "description": "단일 메시지(content) - role과 parts로 구성."
+      },
+      "CreateFileSearchStoreConfigRequest": {
+        "properties": {
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name",
+            "description": "스토어 표시 이름."
+          }
+        },
+        "type": "object",
+        "title": "CreateFileSearchStoreConfigRequest",
+        "description": "File Search Store 생성 시 config."
+      },
+      "CreateFileSearchStoreRequestBody": {
+        "properties": {
+          "config": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CreateFileSearchStoreConfigRequest"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "생성 옵션 (display_name 등)."
+          }
+        },
+        "type": "object",
+        "title": "CreateFileSearchStoreRequestBody",
+        "description": "POST /fileSearchStores 요청 body.",
+        "examples": [
+          {
+            "config": {
+              "display_name": "my-docs-store"
+            }
+          }
+        ]
+      },
+      "EmbeddingRequest": {
+        "properties": {
+          "input": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "items": {
+                  "items": {
+                    "type": "integer"
+                  },
+                  "type": "array"
+                },
+                "type": "array"
+              }
+            ],
+            "title": "Input"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "encoding_format": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": ["float", "base64"]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Encoding Format"
+          },
+          "dimensions": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dimensions"
+          },
+          "user": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User"
+          }
+        },
+        "type": "object",
+        "required": ["input", "model"],
+        "title": "EmbeddingRequest"
+      },
+      "ExpiresAfter": {
+        "properties": {
+          "anchor": {
+            "type": "string",
+            "const": "last_active_at",
+            "title": "Anchor",
+            "default": "last_active_at"
+          },
+          "days": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Days",
+            "description": "만료까지 일수"
+          }
+        },
+        "type": "object",
+        "required": ["days"],
+        "title": "ExpiresAfter"
+      },
+      "GenerateContentConfigRequest": {
+        "properties": {
+          "system_instruction": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "items": {
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "System Instruction",
+            "description": "시스템 지시 (모델 행동 가이드)."
+          },
+          "temperature": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temperature",
+            "description": "토큰 선택 무작위성 (0~2). 낮을수록 일관적."
+          },
+          "top_p": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Top P",
+            "description": "누적 확률 기준 상위 샘플링."
+          },
+          "top_k": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Top K",
+            "description": "상위 k개 토큰 후보."
+          },
+          "max_output_tokens": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Output Tokens",
+            "description": "응답 최대 토큰 수."
+          },
+          "stop_sequences": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stop Sequences",
+            "description": "이 문자열이 나오면 생성 중단."
+          },
+          "response_mime_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Response Mime Type",
+            "description": "응답 MIME 타입. 예: text/plain, application/json."
+          },
+          "response_schema": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Response Schema",
+            "description": "JSON 응답 스키마 (response_mime_type이 application/json일 때)."
+          },
+          "safety_settings": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Safety Settings",
+            "description": "안전 설정 목록."
+          }
+        },
+        "type": "object",
+        "title": "GenerateContentConfigRequest",
+        "description": "생성 옵션 (선택)."
+      },
+      "GenerateContentRequestBody": {
+        "properties": {
+          "contents": {
+            "items": {
+              "$ref": "#/components/schemas/ContentRequest"
+            },
+            "type": "array",
+            "title": "Contents",
+            "description": "대화/입력 메시지 목록. 순서대로 user/model 메시지."
+          },
+          "config": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/GenerateContentConfigRequest"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "생성 옵션 (온도, 최대 토큰 등)."
+          }
+        },
+        "type": "object",
+        "required": ["contents"],
+        "title": "GenerateContentRequestBody",
+        "description": "generateContent / streamGenerateContent 공통 요청 body.",
+        "examples": [
+          {
+            "config": {
+              "max_output_tokens": 256,
+              "temperature": 0.7
+            },
+            "contents": [
+              {
+                "parts": [
+                  {
+                    "text": "Hello, what is 2+2? Reply briefly."
+                  }
+                ],
+                "role": "user"
+              }
+            ]
+          }
+        ]
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "ImageEditRequest": {
+        "properties": {
+          "image": {
+            "items": {
+              "$ref": "#/components/schemas/ImageRef"
+            },
+            "type": "array",
+            "title": "Image",
+            "description": "편집할 이미지 목록 (file_id 또는 image_url)"
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model"
+          },
+          "background": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": ["transparent", "opaque", "auto"]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Background"
+          },
+          "input_fidelity": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": ["high", "low"]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Input Fidelity"
+          },
+          "mask": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ImageRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "n": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N"
+          },
+          "output_compression": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Compression"
+          },
+          "output_format": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": ["png", "jpeg", "webp"]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Format"
+          },
+          "quality": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": ["standard", "low", "medium", "high", "auto"]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quality"
+          },
+          "response_format": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": ["url", "b64_json"]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Response Format"
+          },
+          "size": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "256x256",
+                  "512x512",
+                  "1024x1024",
+                  "1536x1024",
+                  "1024x1536",
+                  "auto"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Size"
+          },
+          "user": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User"
+          }
+        },
+        "type": "object",
+        "required": ["image", "prompt"],
+        "title": "ImageEditRequest"
+      },
+      "ImageGenerateRequest": {
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "title": "Prompt"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model"
+          },
+          "n": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N"
+          },
+          "size": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "256x256",
+                  "512x512",
+                  "1024x1024",
+                  "1792x1024",
+                  "1024x1792"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Size"
+          },
+          "quality": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": ["standard", "hd", "low", "medium", "high", "auto"]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quality"
+          },
+          "style": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": ["vivid", "natural"]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Style"
+          },
+          "response_format": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": ["url", "b64_json"]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Response Format"
+          },
+          "output_format": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": ["png", "jpeg", "webp"]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Format"
+          },
+          "output_compression": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Compression"
+          },
+          "background": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": ["transparent", "opaque", "auto"]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Background"
+          },
+          "moderation": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": ["low", "auto"]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Moderation"
+          },
+          "user": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User"
+          }
+        },
+        "type": "object",
+        "required": ["prompt"],
+        "title": "ImageGenerateRequest"
+      },
+      "ImageRef": {
+        "properties": {
+          "file_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File Id"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          }
+        },
+        "type": "object",
+        "title": "ImageRef"
+      },
+      "ImportFileRequestBody": {
+        "properties": {
+          "fileName": {
+            "type": "string",
+            "title": "Filename"
+          },
+          "customMetadata": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Custommetadata",
+            "description": "Custom metadata for the file."
+          },
+          "chunkingConfig": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chunkingconfig",
+            "description": "Chunking configuration for the file."
+          }
+        },
+        "type": "object",
+        "required": ["fileName"],
+        "title": "ImportFileRequestBody",
+        "examples": [
+          {
+            "fileName": "test.pdf"
+          }
+        ]
+      },
+      "MessageContentBlock": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "title": "Type",
+            "description": "블록 타입. 예: text, image."
+          },
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text",
+            "description": "텍스트 내용 (type이 text일 때)."
+          }
+        },
+        "type": "object",
+        "required": ["type"],
+        "title": "MessageContentBlock",
+        "description": "메시지 내용 블록 (텍스트 등)."
+      },
+      "MessageInput": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "title": "Role",
+            "description": "역할. user 또는 assistant."
+          },
+          "content": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "items": {
+                  "$ref": "#/components/schemas/MessageContentBlock"
+                },
+                "type": "array"
+              },
+              {
+                "items": {
+                  "type": "object"
+                },
+                "type": "array"
+              }
+            ],
+            "title": "Content",
+            "description": "메시지 내용. 문자열 또는 content block 배열."
+          }
+        },
+        "type": "object",
+        "required": ["role", "content"],
+        "title": "MessageInput",
+        "description": "단일 입력 메시지."
+      },
+      "PartRequest": {
+        "properties": {
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text",
+            "description": "텍스트 내용"
+          },
+          "inline_data": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inline Data",
+            "description": "인라인 바이너리 데이터. 예: { \"mime_type\": \"image/png\", \"data\": \"base64...\" }"
+          },
+          "file_data": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File Data",
+            "description": "파일 참조. 예: { \"file_uri\": \"https://...\" }"
+          }
+        },
+        "type": "object",
+        "title": "PartRequest",
+        "description": "한 개의 파트 (텍스트, 인라인 데이터, 파일 참조 등)."
+      },
+      "PostMessagesRequestBody": {
+        "properties": {
+          "model": {
+            "type": "string",
+            "title": "Model",
+            "description": "모델 ID. 예: claude-sonnet-4-20250514"
+          },
+          "max_tokens": {
+            "type": "integer",
+            "title": "Max Tokens",
+            "description": "생성 최대 토큰 수."
+          },
+          "messages": {
+            "items": {
+              "$ref": "#/components/schemas/MessageInput"
+            },
+            "type": "array",
+            "title": "Messages",
+            "description": "입력 메시지 목록 (user/assistant 교대)."
+          },
+          "stream": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stream",
+            "description": "스트리밍 응답 여부.",
+            "default": false
+          },
+          "system": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "items": {
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "System",
+            "description": "시스템 프롬프트 (모델 행동 가이드)."
+          },
+          "temperature": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temperature",
+            "description": "샘플링 온도 (0.0~1.0)."
+          },
+          "top_p": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Top P",
+            "description": "nucleus sampling 상한."
+          },
+          "top_k": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Top K",
+            "description": "top-k 샘플링."
+          },
+          "stop_sequences": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stop Sequences",
+            "description": "생성 중단 시퀀스."
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metadata",
+            "description": "요청 메타데이터."
+          },
+          "service_tier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Service Tier",
+            "description": "서비스 티어. auto 또는 standard_only."
+          },
+          "container": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Container",
+            "description": "요청 간 재사용을 위한 컨테이너 식별자."
+          },
+          "tools": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tools",
+            "description": "모델이 사용할 수 있는 도구 정의 목록. name, description, input_schema 등."
+          },
+          "tool_choice": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tool Choice",
+            "description": "도구 사용 방식. auto | any | none 또는 { type: tool, name: 도구명 }."
+          },
+          "thinking": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Thinking",
+            "description": "확장 사고(thinking) 설정. { type: enabled, budget_tokens: 1024 } 또는 { type: disabled }."
+          }
+        },
+        "type": "object",
+        "required": ["model", "max_tokens", "messages"],
+        "title": "PostMessagesRequestBody",
+        "description": "POST /messages 요청 body (Anthropic Messages API).",
+        "examples": [
+          {
+            "container": "my-session-123",
+            "max_tokens": 2048,
+            "messages": [
+              {
+                "content": "Create a simple PDF file using python.\nRequirements:\n- Use reportlab\n- Title: 'Test PDF'\n- Body: 'Hello from Claude Code Interpreter'\n- Save file name: test.pdf",
+                "role": "user"
+              }
+            ],
+            "model": "claude-sonnet-4-6",
+            "stream": false,
+            "tools": [
+              {
+                "name": "code_execution",
+                "type": "code_execution_20250522"
+              },
+              {
+                "name": "web_search",
+                "type": "web_search_20260209"
+              },
+              {
+                "name": "bash",
+                "type": "bash_20250124"
+              }
+            ]
+          }
+        ]
+      },
+      "PredictRequestBody": {
+        "properties": {
+          "instances": {
+            "items": {
+              "$ref": "#/components/schemas/ContentRequest"
+            },
+            "type": "array",
+            "title": "Instances",
+            "description": "입력 인스턴스 목록. 각 항목은 role/parts를 가진 Content."
+          },
+          "parameters": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/GenerateContentConfigRequest"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "생성 파라미터 (temperature, max_output_tokens 등)."
+          }
+        },
+        "type": "object",
+        "required": ["instances"],
+        "title": "PredictRequestBody",
+        "description": "POST /models/{model}:predict 요청 body (Vertex AI predict 스타일).",
+        "examples": [
+          {
+            "instances": [
+              {
+                "parts": [
+                  {
+                    "text": "Summarize the key points in one paragraph."
+                  }
+                ],
+                "role": "user"
+              }
+            ],
+            "parameters": {
+              "max_output_tokens": 512,
+              "temperature": 0.2
+            }
+          }
+        ]
+      },
+      "RankingOptions": {
+        "properties": {
+          "ranker": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ranker"
+          },
+          "score_threshold": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score Threshold"
+          }
+        },
+        "type": "object",
+        "title": "RankingOptions"
+      },
+      "ReasoningConfig": {
+        "properties": {
+          "effort": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": ["low", "medium", "high"]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effort"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": ["auto", "concise", "detailed"]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary"
+          }
+        },
+        "type": "object",
+        "title": "ReasoningConfig"
+      },
+      "RequestModel": {
+        "properties": {
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content"
+          },
+          "stream": {
+            "type": "boolean",
+            "title": "Stream"
+          }
+        },
+        "type": "object",
+        "required": ["provider", "content", "stream"],
+        "title": "RequestModel"
+      },
+      "ResponseCreateRequest": {
+        "properties": {
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "input": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "items": {},
+                "type": "array"
+              }
+            ],
+            "title": "Input"
+          },
+          "instructions": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instructions"
+          },
+          "tools": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tools"
+          },
+          "temperature": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 2.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temperature"
+          },
+          "top_p": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Top P"
+          },
+          "max_output_tokens": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Output Tokens"
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metadata"
+          },
+          "store": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store"
+          },
+          "stream": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stream"
+          },
+          "tool_choice": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tool Choice"
+          },
+          "parallel_tool_calls": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parallel Tool Calls"
+          },
+          "reasoning": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReasoningConfig"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "text": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TextConfig"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "truncation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TruncationConfig"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "previous_response_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous Response Id"
+          },
+          "background": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Background"
+          },
+          "user": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User"
+          }
+        },
+        "type": "object",
+        "required": ["model", "input"],
+        "title": "ResponseCreateRequest"
+      },
+      "ResponseModel": {
+        "properties": {
+          "result": {
+            "type": "string",
+            "title": "Result"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data"
+          }
+        },
+        "type": "object",
+        "required": ["result"],
+        "title": "ResponseModel"
+      },
+      "StaticChunkingStrategy": {
+        "properties": {
+          "max_chunk_size_tokens": {
+            "type": "integer",
+            "maximum": 4096.0,
+            "minimum": 100.0,
+            "title": "Max Chunk Size Tokens",
+            "description": "최대 청크 토큰 수"
+          },
+          "chunk_overlap_tokens": {
+            "type": "integer",
+            "title": "Chunk Overlap Tokens",
+            "description": "청크 간 겹치는 토큰 수"
+          }
+        },
+        "type": "object",
+        "required": ["max_chunk_size_tokens", "chunk_overlap_tokens"],
+        "title": "StaticChunkingStrategy"
+      },
+      "TextConfig": {
+        "properties": {
+          "format": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Format"
+          }
+        },
+        "type": "object",
+        "title": "TextConfig"
+      },
+      "TruncationConfig": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["auto", "disabled"],
+            "title": "Type",
+            "default": "auto"
+          }
+        },
+        "type": "object",
+        "title": "TruncationConfig"
+      },
+      "UploadCompleteRequest": {
+        "properties": {
+          "part_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Part Ids",
+            "description": "파트 ID 목록 (순서대로)"
+          },
+          "md5": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Md5",
+            "description": "파일 내용 검증용 MD5 체크섬"
+          }
+        },
+        "type": "object",
+        "required": ["part_ids"],
+        "title": "UploadCompleteRequest"
+      },
+      "UploadCreateRequest": {
+        "properties": {
+          "bytes": {
+            "type": "integer",
+            "title": "Bytes",
+            "description": "업로드할 파일의 바이트 수"
+          },
+          "filename": {
+            "type": "string",
+            "title": "Filename",
+            "description": "업로드할 파일 이름"
+          },
+          "mime_type": {
+            "type": "string",
+            "title": "Mime Type",
+            "description": "파일의 MIME 타입"
+          },
+          "purpose": {
+            "type": "string",
+            "enum": ["assistants", "batch", "fine-tune", "vision"],
+            "title": "Purpose",
+            "description": "파일 용도"
+          }
+        },
+        "type": "object",
+        "required": ["bytes", "filename", "mime_type", "purpose"],
+        "title": "UploadCreateRequest"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": ["loc", "msg", "type"],
+        "title": "ValidationError"
+      },
+      "VectorStoreCreateRequest": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "file_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File Ids"
+          },
+          "chunking_strategy": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ChunkingStrategy"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "expires_after": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExpiresAfter"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metadata"
+          }
+        },
+        "type": "object",
+        "title": "VectorStoreCreateRequest"
+      },
+      "VectorStoreFileCreateRequest": {
+        "properties": {
+          "file_id": {
+            "type": "string",
+            "title": "File Id"
+          },
+          "attributes": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "boolean"
+                    }
+                  ]
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attributes"
+          },
+          "chunking_strategy": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ChunkingStrategy"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": ["file_id"],
+        "title": "VectorStoreFileCreateRequest"
+      },
+      "VectorStoreFileUpdateRequest": {
+        "properties": {
+          "attributes": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "boolean"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "Attributes",
+            "description": "파일 속성 (최대 16개, 키 64자/값 512자 제한)"
+          }
+        },
+        "type": "object",
+        "required": ["attributes"],
+        "title": "VectorStoreFileUpdateRequest"
+      },
+      "VectorStoreSearchRequest": {
+        "properties": {
+          "query": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              }
+            ],
+            "title": "Query"
+          },
+          "filters": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ComparisonFilter"
+              },
+              {
+                "$ref": "#/components/schemas/CompoundFilter"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Filters"
+          },
+          "max_num_results": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 50.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Num Results"
+          },
+          "ranking_options": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RankingOptions"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rewrite_query": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rewrite Query"
+          }
+        },
+        "type": "object",
+        "required": ["query"],
+        "title": "VectorStoreSearchRequest"
+      },
+      "VectorStoreUpdateRequest": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "expires_after": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExpiresAfter"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metadata"
+          }
+        },
+        "type": "object",
+        "title": "VectorStoreUpdateRequest"
+      }
+    }
+  }
+}
