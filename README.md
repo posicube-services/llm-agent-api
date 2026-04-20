@@ -1,3 +1,26 @@
+## API 구조 안내
+
+본 API는 URL 경로 기준으로 두 가지 타입으로 구분됩니다.
+
+### a1 ~ a3 API (단일 호출형)
+- 예: `https://genai.postech.ac.kr/agent/api/a3/claude`
+- JSON 기반 단순 LLM 호출
+- 멀티파트(form-data) 미지원
+
+간단한 질의/응답 또는 빠른 연동이 필요한 경우 사용  
+가이드 문서: [a1_a3_README.md](./a1_a3_README.md)
+
+---
+
+### a11 ~ a64 API (Agent/OpenAPI 기반)
+- 예: `https://genai.postech.ac.kr/agent/api/a64/google/files/{name}`
+- multipart/form-data 지원
+- 파일 업로드 및 고급 기능 제공
+
+본 README는 해당 API(a11 ~ a64)에 대한 가이드입니다.
+
+---
+
 ## LLM Agent API
 
 **OpenAI, Anthropic, Google**의 주요 개발자 API를 Agent OpenAPI 표준으로 통합 제공
