@@ -50,26 +50,6 @@
 
 각 API 호출은 **Base URL + path**로 구성됩니다.
 
-## 빠르게 시작하기
-
-### 1) Base URL 이해하기
-
-`spec.json`의 `servers.url`은 다음 형태입니다.
-
-- `https://{domain}/agent/{agent_alias}/a{idx}`
-
-예를 들어,
-
-- `{domain}` = `api.example.com`
-- `{agent_alias}` = `llms`
-- `{idx}` = `27`
-
-이면 Base URL은 아래와 같습니다.
-
-- `https://api.example.com/agent/llms/a27`
-
-각 API 호출은 **Base URL + path**로 구성됩니다.
-
 ---
 
 ### 2) 사용 가능한 모델
