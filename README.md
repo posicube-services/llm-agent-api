@@ -50,6 +50,52 @@
 
 각 API 호출은 **Base URL + path**로 구성됩니다.
 
+## 빠르게 시작하기
+
+### 1) Base URL 이해하기
+
+`spec.json`의 `servers.url`은 다음 형태입니다.
+
+- `https://{domain}/agent/{agent_alias}/a{idx}`
+
+예를 들어,
+
+- `{domain}` = `api.example.com`
+- `{agent_alias}` = `llms`
+- `{idx}` = `27`
+
+이면 Base URL은 아래와 같습니다.
+
+- `https://api.example.com/agent/llms/a27`
+
+각 API 호출은 **Base URL + path**로 구성됩니다.
+
+---
+
+### 2) 사용 가능한 모델
+
+본 API는 멀티 LLM을 지원하며, 모델별 사용 가능 범위는 아래와 같습니다.
+
+#### Claude (Anthropic)
+- **공식 지원 모델 전체 사용 가능**
+
+#### Gemini (Google)
+- **공식 지원 모델 전체 사용 가능**
+
+#### ⚠️ GPT (OpenAI)
+- 일부 특수 모델만 사용 가능 (Response 지원 모델)
+
+사용 가능 모델 목록:
+```
+gpt-4.1-mini-gs-2025-04-14
+o3-deep-research-gs-2025-06-26
+gpt-5.2-gs-2025-12-11
+gpt-5.1-gs-2025-11-13
+gpt-5-mini-gs-2025-08-07
+gpt-5-gs-2025-08-07
+```
+> ⚠️ 위 목록 외 GPT 모델은 현재 사용이 제한됩니다.
+
 ---
 
 ## 문서(스펙) 보는 방법
